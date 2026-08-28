@@ -20,4 +20,7 @@ String string_new_len(const char* str, size_t length);
 // Free a string
 void string_free(const String* str);
 
+// Concat 2 strings
+String string_concat(const char* str_a, const char* str_b);
+
 #endif //WEV_STRING_H
