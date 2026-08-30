@@ -4,10 +4,26 @@
 #include <stdbool.h>
 #include "../core/string.h"
 
+// The action the driver is asked to execute.
+typedef enum DriverAction
+{
+    DRIVER_ACTION_BUILD,
+    DRIVER_ACTION_TEST,
+    DRIVER_ACTION_RUN,
+    DRIVER_ACTION_VERSION,
+    DRIVER_ACTION_HELP,
+} DriverAction;
+
 typedef struct DriverArgs
 {
     bool success;
     String error_message;
+
+    // Action to execute.
+    DriverAction action;
+
+    // True when no action was supplied on the command line.
+    bool no_action;
 } DriverArgs;
 
 // Parse command ligne arguments and returns the result.

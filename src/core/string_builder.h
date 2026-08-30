@@ -15,6 +15,9 @@ typedef struct StringBuilder
 // Create a new string builder.
 StringBuilder string_builder_new();
 
+// Free a string builder.
+void string_builder_free(StringBuilder* builder);
+
 // Append a content to a string builder.
 void string_builder_append(StringBuilder* builder, const char* str);
 

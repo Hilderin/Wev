@@ -27,6 +27,10 @@ TEST(test_string_new)
     ASSERT_STR_EQ(s.content, "hello");
 
     string_free(&s);
+
+    ASSERT_TRUE(s.content == NULL);
+    ASSERT_EQ(s.length, 0);
+    ASSERT_EQ(s.capacity, 0);
 }
 
 TEST(test_string_new_null_returns_empty)
@@ -74,6 +78,18 @@ TEST(test_string_new_len_null_returns_empty)
 TEST(test_string_free_null_does_not_crash)
 {
     string_free(NULL);
+}
+
+TEST(test_string_free_resets_fields)
+{
+    String s = string_new_len("hello world", 5);
+    ASSERT_EQ(s.length, 5);
+
+    string_free(&s);
+
+    ASSERT_TRUE(s.content == NULL);
+    ASSERT_EQ(s.length, 0);
+    ASSERT_EQ(s.capacity, 0);
 }
 
 RUN_ALL_TESTS()

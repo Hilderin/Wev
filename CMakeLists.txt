@@ -12,12 +12,13 @@ add_library(wev_core STATIC
         src/core/file.c
         src/driver/driver.c
         src/driver/console.c
-        src/driver/driver_args.c)
+        src/driver/driver_args.c
+        src/version.h)
 
 target_include_directories(wev_core PUBLIC src)
 
-add_executable(Wev src/main.c)
-target_link_libraries(Wev PRIVATE wev_core)
+add_executable(wev src/main.c)
+target_link_libraries(wev PRIVATE wev_core)
 
 # Unit tests
 function(wev_add_unit_test target_name path)
@@ -31,3 +32,5 @@ wev_add_unit_test(test_string core/test_string)
 wev_add_unit_test(test_file core/test_file)
 wev_add_unit_test(test_string_builder core/test_string_builder)
 wev_add_unit_test(test_console driver/test_console)
+wev_add_unit_test(test_driver_args driver/test_driver_args)
+wev_add_unit_test(test_driver driver/test_driver)

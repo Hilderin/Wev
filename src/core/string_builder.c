@@ -11,6 +11,17 @@ StringBuilder string_builder_new()
     return (StringBuilder){0};
 }
 
+void string_builder_free(StringBuilder* builder)
+{
+    if (builder == NULL || builder->buffer == NULL) return;
+
+    free(builder->buffer);
+
+    builder->buffer = NULL;
+    builder->capacity = 0;
+    builder->length = 0;
+}
+
 static bool string_builder_ensure_capacity(StringBuilder* builder, const size_t capacity)
 {
     if (builder == NULL) return false;

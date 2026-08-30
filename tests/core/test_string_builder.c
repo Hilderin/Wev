@@ -74,6 +74,37 @@ TEST(test_builder_append_fmt)
     free(b.buffer);
 }
 
+TEST(test_builder_free_resets_fields)
+{
+    StringBuilder b = string_builder_new();
+    string_builder_append(&b, "hello");
+    ASSERT_EQ(b.length, 5);
+    ASSERT_TRUE(b.buffer != NULL);
+
+    string_builder_free(&b);
+
+    ASSERT_TRUE(b.buffer == NULL);
+    ASSERT_EQ(b.length, 0);
+    ASSERT_EQ(b.capacity, 0);
+}
+
+TEST(test_builder_free_null_does_not_crash)
+{
+    string_builder_free(NULL);
+}
+
+TEST(test_builder_free_twice_does_not_crash)
+{
+    StringBuilder b = string_builder_new();
+
+    string_builder_free(&b);
+    string_builder_free(&b);
+
+    ASSERT_TRUE(b.buffer == NULL);
+    ASSERT_EQ(b.length, 0);
+    ASSERT_EQ(b.capacity, 0);
+}
+
 TEST(test_builder_append_fmt_longer_than_capacity)
 {
     StringBuilder b = string_builder_new();

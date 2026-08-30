@@ -50,9 +50,12 @@ String string_new_len(const char* str, size_t length)
     return (String){.content = new_str, .length = size, .capacity = capacity};
 }
 
-void string_free(const String* str)
+void string_free(String* str)
 {
     if (str == NULL || str->content == NULL) return;
 
     free(str->content);
+    str->content = NULL;
+    str->length = 0;
+    str->capacity = 0;
 }
