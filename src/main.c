@@ -1,5 +1,5 @@
-#include "driver/driver.h"
 #include "driver/console.h"
+#include "driver/driver.h"
 
 // Entrypoint of the driver
 int main(const int argc, char* argv[])

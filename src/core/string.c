@@ -27,7 +27,6 @@ String string_new(const char* str)
     return (String){.content = new_str, .length = size, .capacity = capacity};
 }
 
-
 String string_new_len(const char* str, size_t length)
 {
     if (str == NULL) return string_empty();

@@ -11,6 +11,6 @@ String string_empty();
 size_t file_len(const char* path);
 
 // Reads the content of a file into the string.
-String file_read_str(const char* path);
+char* file_read_str(const char* path);
 
-#endif //WEV_FILE_H
+#endif // WEV_FILE_H

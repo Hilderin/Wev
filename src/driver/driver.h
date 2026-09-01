@@ -10,4 +10,4 @@ typedef struct Driver
 
 int driver_run(const Driver* driver, int argc, char* argv[]);
 
-#endif //WEV_DRIVER_H
+#endif // WEV_DRIVER_H

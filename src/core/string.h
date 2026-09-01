@@ -23,4 +23,4 @@ void string_free(String* str);
 // Concat 2 strings
 String string_concat(const char* str_a, const char* str_b);
 
-#endif //WEV_STRING_H
+#endif // WEV_STRING_H

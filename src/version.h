@@ -3,4 +3,4 @@
 
 #define WEV_VERSION "0.1.0"
 
-#endif //WEV_VERSION_H
+#endif // WEV_VERSION_H

@@ -3,7 +3,6 @@
 #include <stdarg.h>
 #include <stddef.h>
 
-
 // Contains a string builder
 typedef struct StringBuilder
 {
@@ -27,4 +26,4 @@ void string_builder_append_fmt(StringBuilder* builder, const char* format, ...);
 // Append a content to a string builder with a format and a va_list.
 void string_builder_append_vfmt(StringBuilder* builder, const char* format, va_list args);
 
-#endif //WEV_STRING_BUILDER_H
+#endif // WEV_STRING_BUILDER_H

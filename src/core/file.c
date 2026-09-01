@@ -21,13 +21,33 @@ size_t file_len(const char* path)
     return size;
 }
 
-String file_read_str(const char* path)
+char* file_read_str(const char* path)
 {
-    size_t size = file_len(path);
+    if (path == NULL) return 0;
 
-    if (size == 0) return string_empty();
+    FILE* fptr = fopen(path, "r");
+    if (fptr == NULL) return 0;
 
-    const char* buffer = (char*)malloc(size);
+    size_t size = 0;
+    if (fseek(fptr, 0, SEEK_END) != 0)
+    {
+        fclose(fptr);
+        return NULL;
+    }
+    else
+    {
+        size = ftell(fptr);
 
-    return string_new_len(buffer, size);
+        // Return the file at the start.
+        fseek(fptr, 0, SEEK_SET);
+    }
+
+    // Read all the file content.
+    char* buffer = malloc(size + 1);
+    size = fread(buffer, 1, size, fptr);
+    buffer[size] = '\0';
+
+    fclose(fptr);
+
+    return buffer;
 }

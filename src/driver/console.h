@@ -14,4 +14,4 @@ typedef struct Console
 // Log to the console.
 void console_log(Console* console, const char* __restrict format, ...);
 
-#endif //WEV_CONSOLE_H
+#endif // WEV_CONSOLE_H

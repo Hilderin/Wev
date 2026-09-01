@@ -1,8 +1,8 @@
 #ifndef WEV_DRIVER_ARGS_H
 #define WEV_DRIVER_ARGS_H
 
-#include <stdbool.h>
 #include "../core/string.h"
+#include <stdbool.h>
 
 // The action the driver is asked to execute.
 typedef enum DriverAction
@@ -29,4 +29,4 @@ typedef struct DriverArgs
 // Parse command ligne arguments and returns the result.
 DriverArgs parse_driver_args(int argc, char* argv[]);
 
-#endif //WEV_DRIVER_ARGS_H
+#endif // WEV_DRIVER_ARGS_H
