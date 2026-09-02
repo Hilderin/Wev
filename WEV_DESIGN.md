@@ -1080,12 +1080,112 @@ designed.
 ### 22.6 AST consequence
 
 The flat-array AST design (nodes and tokens stored as contiguous arrays
-referenced by indices, never by pointers) makes the interface trivially
-derivable: it is a serialized subset of the exported nodes, produced by the same
-mechanism as any future AST cache. No pointer fix-ups are needed when writing
-and reloading the cache.
+referenced by indices, never by pointers, see Section 23) makes the interface
+trivially derivable: it is a serialized subset of the exported nodes, produced
+by the same mechanism as any future AST cache. No pointer fix-ups are needed
+when writing and reloading the cache.
 
-## 23. Compiler Pipeline
+## 23. AST Representation
+
+The AST is stored as a **flat array of nodes referenced by indices**, not as
+individually allocated nodes with pointers. This section describes the
+representation and why it is preferred.
+
+### 23.1 Shape
+
+An `Ast` owns three contiguous arrays plus the arena for auxiliary data:
+
+```c
+typedef struct AstNode
+{
+    uint32_t kind;         // AstNodeKind
+    uint32_t token_index;  // index into Ast.tokens
+    uint32_t first_child;  // index into Ast.nodes (start of child range)
+    uint32_t child_count;  // number of children in the range
+    // payload union for literals: int_value, float_bits, symbol_id, ...
+} AstNode;
+
+typedef struct Ast
+{
+    AstNode* nodes;   size_t nodes_count, nodes_capacity;
+    Token*   tokens;  size_t tokens_count, tokens_capacity;
+    const char* source;   // kept alive for offset-based token reads
+    Arena   arena;        // interned symbols, de-escaped strings
+} Ast;
+```
+
+Children are stored as **contiguous ranges**: `first_child` plus `child_count`.
+There are no `AstNode*` pointers anywhere in the structure; all cross-references
+are `uint32_t` indices into one of the arrays.
+
+### 23.2 Building
+
+A recursive-descent parser appends nodes to the array. Lists are built by
+recording the start index before parsing the items, then writing the range:
+
+```c
+uint32_t start = ast->nodes_count;
+// ... parse each child with ast_push(...)
+uint32_t node = ast_push(ast, AST_BLOCK, token_index);
+ast->nodes[node].first_child = start;
+ast->nodes[node].child_count = ast->nodes_count - start;
+```
+
+Node insertion never moves previously emitted nodes: `ast_push` only appends,
+and a single `realloc` may move the whole array, which is safe because
+references are indices, not addresses.
+
+### 23.3 Traversal
+
+Reading a node and iterating its children is a few dependent loads:
+
+```c
+const AstNode* n = &ast->nodes[idx];
+for (uint32_t i = n->first_child; i < n->first_child + n->child_count; i++)
+{
+    visit(ast, i);
+}
+```
+
+Tokens are read by index the same way. Because `Token` stores offsets
+(`location`, `length`) instead of a `str_ptr`, the text of any token is
+re-derived as `source + location`, so the token array contains no pointers.
+
+### 23.4 Why indices over pointers
+
+- **Locality**: nodes are packed contiguously and visited in index order, so a
+  traversal touches few cache lines. Boxed, separately allocated nodes scatter
+  children across the heap and force pointer chasing on every step.
+- **Compactness**: a node is roughly 16-24 bytes with `uint32_t` fields and a
+  small payload union; a pointer-based design spends 8 bytes per child and
+  varies node size, causing internal fragmentation.
+- **No per-node allocation**: the parser only ever appends to arrays; there is
+  no `malloc` per node and exactly one `free` at the end of the unit.
+- **Realloc-safe**: growing the node array may move it, but indices remain
+  valid. Pointer-based arenas cannot move without rewriting every reference.
+- **Relocatable and serializable**: a structure made only of indices and
+  offsets can be written to disk and reloaded verbatim, with no pointer
+  fix-ups. This is what makes AST and interface caching cheap (Section 22).
+- **Side tables for analysis**: later passes (type checking, ownership, drop
+  insertion) can attach per-node data in parallel arrays indexed by node id,
+  leaving the AST itself read-only. The same is awkward with boxed nodes.
+
+### 23.5 Symbols and strings
+
+Identifiers and type names are interned once into the `Arena`; the node stores a
+`symbol_id` instead of a source range. Pointer-equality of interned strings
+becomes integer equality of ids, which speeds up name resolution. String
+literals keep their token offset and are de-escaped into the arena only when
+the C backend needs the concrete bytes.
+
+### 23.6 The token array
+
+The lexer already yields one `Token` at a time; the parser driver collects them
+into `Ast.tokens` while tokenizing the whole source up front. The AST then
+references tokens by index. Keeping the tokens in the same `Ast` means the AST
+owns everything it references, and the whole unit is freed together.
+
+## 24. Compiler Pipeline
 
 The intended pipeline is:
 
@@ -1106,7 +1206,7 @@ source
 The ownership checker must be flow-sensitive enough to handle branches and
 early returns, but it does not need Rust's full borrow-checking model.
 
-## 24. MVP1 Acceptance Example
+## 25. MVP1 Acceptance Example
 
 The following example represents the minimum useful vertical slice:
 
@@ -1163,7 +1263,7 @@ fn invalid_move() {
 }
 ```
 
-## 25. MVP1 Exclusions
+## 26. MVP1 Exclusions
 
 The following are deliberately postponed:
 
@@ -1183,7 +1283,7 @@ The following are deliberately postponed:
 - incremental build and module caching (see Section 22);
 - optimizer-driven heap-to-stack promotion of `*T` allocations.
 
-## 26. Open Decisions
+## 27. Open Decisions
 
 The following decisions remain to be made before implementation is considered
 stable:
