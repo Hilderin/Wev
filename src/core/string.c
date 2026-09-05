@@ -1,7 +1,7 @@
 #include "string.h"
 
 #include <stdlib.h>
-#include <string.h>
+#include <string.h> // NOLINT(readability-duplicate-include)
 
 String string_empty()
 {

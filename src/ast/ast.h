@@ -2,7 +2,6 @@
 #define WEV_AST_H
 
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
 
 #include "token/tokenizer.h"
@@ -82,15 +81,16 @@ typedef struct AstSymbol
 typedef struct Ast
 {
     AstNode* nodes;
-    size_t nodes_count;
-    size_t nodes_capacity;
+    uint32_t nodes_count;
+    uint32_t nodes_capacity;
     Token* tokens;
-    size_t tokens_count;
-    size_t tokens_capacity;
+    uint32_t tokens_count;
+    uint32_t tokens_capacity;
     AstSymbol* symbols;
-    size_t symbols_count;
-    size_t symbols_capacity;
+    uint32_t symbols_count;
+    uint32_t symbols_capacity;
     const char* source;
+    bool failed;
 } Ast;
 
 #define AST_FLAG_IS_SYSTEM (1u << 0)         // AST_INCLUDE

@@ -20,8 +20,14 @@ uint32_t ast_push_token(Ast* ast, const Token token)
 {
     if (ast->tokens_count == ast->tokens_capacity)
     {
-        const size_t new_capacity = ast->tokens_capacity == 0 ? 16 : ast->tokens_capacity * 2;
-        ast->tokens = realloc(ast->tokens, new_capacity * sizeof(Token));
+        const uint32_t new_capacity = ast->tokens_capacity == 0 ? 16 : ast->tokens_capacity * 2;
+        Token* const new_tokens = realloc(ast->tokens, (size_t)new_capacity * sizeof(Token));
+        if (new_tokens == NULL)
+        {
+            ast->failed = true;
+            return UINT32_MAX;
+        }
+        ast->tokens = new_tokens;
         ast->tokens_capacity = new_capacity;
     }
     ast->tokens[ast->tokens_count] = token;
@@ -32,8 +38,14 @@ uint32_t ast_push_node(Ast* ast, const AstNodeKind kind, const uint32_t token_in
 {
     if (ast->nodes_count == ast->nodes_capacity)
     {
-        const size_t new_capacity = ast->nodes_capacity == 0 ? 16 : ast->nodes_capacity * 2;
-        ast->nodes = realloc(ast->nodes, new_capacity * sizeof(AstNode));
+        const uint32_t new_capacity = ast->nodes_capacity == 0 ? 16 : ast->nodes_capacity * 2;
+        AstNode* const new_nodes = realloc(ast->nodes, (size_t)new_capacity * sizeof(AstNode));
+        if (new_nodes == NULL)
+        {
+            ast->failed = true;
+            return UINT32_MAX;
+        }
+        ast->nodes = new_nodes;
         ast->nodes_capacity = new_capacity;
     }
     const uint32_t index = ast->nodes_count++;
@@ -69,12 +81,18 @@ uint32_t ast_intern(Ast* ast, const char* text, const uint32_t length)
 
     if (ast->symbols_count == ast->symbols_capacity)
     {
-        const size_t new_capacity = ast->symbols_capacity == 0 ? 16 : ast->symbols_capacity * 2;
-        ast->symbols = realloc(ast->symbols, new_capacity * sizeof(AstSymbol));
+        const uint32_t new_capacity = ast->symbols_capacity == 0 ? 16 : ast->symbols_capacity * 2;
+        AstSymbol* const new_symbols = realloc(ast->symbols, (size_t)new_capacity * sizeof(AstSymbol));
+        if (new_symbols == NULL)
+        {
+            ast->failed = true;
+            return UINT32_MAX;
+        }
+        ast->symbols = new_symbols;
         ast->symbols_capacity = new_capacity;
     }
     ast->symbols[ast->symbols_count] = (AstSymbol){.offset = (uint32_t)(text - ast->source), .length = length};
-    return (uint32_t)ast->symbols_count++;
+    return ast->symbols_count++;
 }
 
 uint32_t ast_push_module(Ast* ast, const uint32_t token_index)

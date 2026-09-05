@@ -35,7 +35,7 @@ static uint64_t parse_int_value(const char* text, const uint32_t length)
         {
             break;
         }
-        value = value * base + digit;
+        value = (value * base) + digit;
     }
     return value;
 }
@@ -88,8 +88,8 @@ static uint32_t parse_primary(Parser* p)
         const uint32_t inner = parse_expression(p);
         if (!parser_match(p, TOKEN_RPAREN))
         {
-            const Token token = parser_peek(p);
-            parser_error(p, &token, "expected ')' to close the parenthesized expression");
+            const Token found = parser_peek(p);
+            parser_error(p, &found, "expected ')' to close the parenthesized expression");
         }
         return inner;
     }

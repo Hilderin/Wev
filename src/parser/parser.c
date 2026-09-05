@@ -12,19 +12,27 @@ bool wev_parse_source(const char* source, Ast* ast, ParseError* out_error)
     {
         const Token token = get_next_token(&tokenizer);
         ast_push_token(ast, token);
+        if (ast->failed)
+        {
+            parser_error(&parser, &token, "out of memory while tokenizing");
+            break;
+        }
         if (token.type == TOKEN_EOF)
         {
             break;
         }
     }
 
-    parse_program(&parser);
+    if (!parser.failed)
+    {
+        parse_program(&parser);
+    }
 
     if (out_error)
     {
         *out_error = parser.error;
     }
-    return !parser.failed;
+    return !parser.failed && !ast->failed;
 }
 
 Token parser_peek(Parser* p)
@@ -109,11 +117,17 @@ uint32_t parse_program(Parser* p)
     uint32_t first_child = 0;
     bool has_children = false;
 
-    while (!parser_check(p, TOKEN_EOF) && !p->failed)
+    while (!parser_check(p, TOKEN_EOF) && !p->failed && !p->ast->failed)
     {
         if (parser_match(p, TOKEN_FUNCTION))
         {
             const uint32_t decl = parse_fn_decl(p);
+            if (p->ast->failed)
+            {
+                p->failed = true;
+                p->error = (ParseError){.line = 0, .col = 0, .message = "out of memory while parsing"};
+                break;
+            }
             if (!has_children)
             {
                 first_child = decl;

@@ -5,7 +5,7 @@
 
 #define TOKEN_ENTRY(token_type, token_name, token_str)                                                                                               \
     {                                                                                                                                                \
-        .type = token_type, .name = token_name, .str = token_str, .len = sizeof(token_str) - 1                                                       \
+        .type = (token_type), .name = (token_name), .str = (token_str), .len = sizeof(token_str) - 1                                                 \
     }
 
 static const TokenInfo token_infos[] = {

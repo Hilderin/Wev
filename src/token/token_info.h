@@ -7,9 +7,9 @@
 
 typedef struct TokenInfo
 {
-    TokenType type;
     const char* name;
     const char* str;
+    TokenType type;
     uint len;
 } TokenInfo;
 

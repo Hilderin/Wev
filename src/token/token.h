@@ -93,6 +93,6 @@ typedef enum TokenType
     TOKEN_NE,
     TOKEN_QUESTION,
 
-    TOKEN_EOF
+    TOKEN_EOF,
 } TokenType;
 #endif // WEV_TOKEN_H
