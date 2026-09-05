@@ -1,6 +1,7 @@
 #include "ast.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 void ast_init(Ast* ast, const char* source)
 {
@@ -11,6 +12,7 @@ void ast_free(Ast* ast)
 {
     free(ast->nodes);
     free(ast->tokens);
+    free(ast->symbols);
     *ast = (Ast){0};
 }
 
@@ -48,6 +50,31 @@ void ast_end_children(Ast* ast, const uint32_t node_index, const uint32_t start)
 {
     ast->nodes[node_index].first_child = start;
     ast->nodes[node_index].child_count = node_index - start;
+}
+
+uint32_t ast_intern(Ast* ast, const char* text, const uint32_t length)
+{
+    for (size_t i = 0; i < ast->symbols_count; i++)
+    {
+        const AstSymbol* symbol = &ast->symbols[i];
+        if (symbol->length != length)
+        {
+            continue;
+        }
+        if (memcmp(ast->source + symbol->offset, text, length) == 0)
+        {
+            return (uint32_t)i;
+        }
+    }
+
+    if (ast->symbols_count == ast->symbols_capacity)
+    {
+        const size_t new_capacity = ast->symbols_capacity == 0 ? 16 : ast->symbols_capacity * 2;
+        ast->symbols = realloc(ast->symbols, new_capacity * sizeof(AstSymbol));
+        ast->symbols_capacity = new_capacity;
+    }
+    ast->symbols[ast->symbols_count] = (AstSymbol){.offset = (uint32_t)(text - ast->source), .length = length};
+    return (uint32_t)ast->symbols_count++;
 }
 
 uint32_t ast_push_module(Ast* ast, const uint32_t token_index)

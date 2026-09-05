@@ -109,6 +109,12 @@ becomes integer equality of ids, which speeds up name resolution. String
 literals keep their token offset and are de-escaped into the arena only when
 the C backend needs the concrete bytes.
 
+*Implementation note:* the arena is currently a linear-scan table
+(`Ast.symbols`, entries `{offset, length}` pointing into the source, dedup via
+`ast_intern`). It uses offsets instead of copied pointers so the source stays
+the single backing memory, and it can be replaced by a hash-backed arena later
+without touching node payloads.
+
 ### 1.6 The token array
 
 The lexer already yields one `Token` at a time; the parser driver collects them

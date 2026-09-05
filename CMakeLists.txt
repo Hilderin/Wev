@@ -15,6 +15,13 @@ add_library(wev_core STATIC
         src/driver/driver.c
         src/driver/console.c
         src/driver/driver_args.c
+        src/parser/parse_decl.c
+        src/parser/parse_expr.c
+        src/parser/parse_stmt.c
+        src/parser/parse_type.c
+        src/parser/parser.c
+        src/parser/parser.h
+        src/parser/parser_internal.h
         src/version.h
         src/token/token.h
         src/token/token_info.c
@@ -37,6 +44,7 @@ endfunction()
 
 wev_add_unit_test(test_string core/test_string)
 wev_add_unit_test(test_ast ast/test_ast)
+wev_add_unit_test(test_parser parser/test_parser)
 wev_add_unit_test(test_file core/test_file)
 wev_add_unit_test(test_string_builder core/test_string_builder)
 wev_add_unit_test(test_console driver/test_console)

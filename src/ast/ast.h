@@ -73,6 +73,12 @@ typedef struct AstNode
     } payload;
 } AstNode;
 
+typedef struct AstSymbol
+{
+    uint32_t offset;
+    uint32_t length;
+} AstSymbol;
+
 typedef struct Ast
 {
     AstNode* nodes;
@@ -81,6 +87,9 @@ typedef struct Ast
     Token* tokens;
     size_t tokens_count;
     size_t tokens_capacity;
+    AstSymbol* symbols;
+    size_t symbols_count;
+    size_t symbols_capacity;
     const char* source;
 } Ast;
 
@@ -107,6 +116,10 @@ uint32_t ast_begin_children(Ast* ast);
 
 // Writes the child range [start, node_index) into the given node.
 void ast_end_children(Ast* ast, uint32_t node_index, uint32_t start);
+
+// Interns a string into the Ast's symbol table and returns its symbol_id.
+// The text must point into the Ast's source. Deduplicated by linear scan.
+uint32_t ast_intern(Ast* ast, const char* text, uint32_t length);
 
 // Declaration nodes.
 uint32_t ast_push_module(Ast* ast, uint32_t token_index);
