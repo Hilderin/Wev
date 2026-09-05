@@ -7,6 +7,7 @@
 
 typedef struct TokenSequence
 {
+    const char* content;
     Token tokens[MAX_TOKEN_SEQUENCE];
     uint count;
 } TokenSequence;
@@ -14,7 +15,7 @@ typedef struct TokenSequence
 // Tokenizes the whole content, stopping after TOKEN_EOF.
 static TokenSequence tokenize_all(const char* content)
 {
-    TokenSequence sequence = {0};
+    TokenSequence sequence = {.content = content};
     Tokenizer tokenizer = tokenizer_new(content);
 
     while (sequence.count < MAX_TOKEN_SEQUENCE)
@@ -118,7 +119,7 @@ TEST(test_tokenizer_get_next_token_identifier)
     ASSERT_EQ(token.type, TOKEN_IDENTIFIER);
     ASSERT_EQ(token.length, 8);
     ASSERT_EQ(token.location, 0);
-    ASSERT_EQ(token.str_ptr[0], 'u');
+    ASSERT_TRUE(memcmp(tokenizer.content + token.location, "username", token.length) == 0);
 }
 
 TEST(test_tokenizer_get_next_token_declare)
@@ -191,7 +192,7 @@ TEST(test_tokenizer_get_next_token_string_literal)
     ASSERT_EQ(second.type, TOKEN_LPAREN);
     ASSERT_EQ(third.type, TOKEN_STRING_LITERAL);
     ASSERT_EQ(third.length, 16);
-    ASSERT_EQ(third.str_ptr[0], '"');
+    ASSERT_EQ(tokenizer.content[third.location], '"');
     ASSERT_EQ(fourth.type, TOKEN_RPAREN);
 }
 
@@ -393,7 +394,7 @@ TEST(test_tokenizer_acceptance_example)
 
     ASSERT_EQ(sequence.tokens[5].type, TOKEN_GT);
     ASSERT_EQ(sequence.tokens[74].length, 7);
-    ASSERT_TRUE(memcmp(sequence.tokens[74].str_ptr, "\"Alice\"", 7) == 0);
+    ASSERT_TRUE(memcmp(sequence.content + sequence.tokens[74].location, "\"Alice\"", 7) == 0);
     ASSERT_EQ(sequence.tokens[93].length, 1);
 }
 

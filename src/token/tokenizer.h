@@ -11,7 +11,6 @@ typedef struct Token
     uint length;
     uint line_number;
     uint col_number;
-    const char* str_ptr;
 } Token;
 
 typedef struct Tokenizer

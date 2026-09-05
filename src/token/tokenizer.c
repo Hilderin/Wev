@@ -5,8 +5,7 @@
 #include "token_info.h"
 
 // Create a token from the tokenizer,
-static Token create_token(const Tokenizer* tokenizer,
-                          const TokenType type,
+static Token create_token(const TokenType type,
                           const uint location,
                           const uint size,
                           const uint line_number,
@@ -14,7 +13,6 @@ static Token create_token(const Tokenizer* tokenizer,
 {
     return (Token){
         .type = type,
-        .str_ptr = tokenizer->content + location,
         .location = location,
         .length = size,
         .line_number = line_number,
@@ -135,10 +133,10 @@ static Token scan_identifier(Tokenizer* tokenizer, const uint start_location, co
 
     if (token_info)
     {
-        return create_token(tokenizer, token_info->type, start_location, length, line_number, col_number);
+        return create_token(token_info->type, start_location, length, line_number, col_number);
     }
 
-    return create_token(tokenizer, TOKEN_IDENTIFIER, start_location, length, line_number, col_number);
+    return create_token(TOKEN_IDENTIFIER, start_location, length, line_number, col_number);
 }
 
 // Scan an integer or float literal token.
@@ -155,7 +153,7 @@ static Token scan_number(Tokenizer* tokenizer, const uint start_location, const 
         {
             advance(tokenizer);
         }
-        return create_token(tokenizer, TOKEN_INT_LITERAL, start_location, tokenizer->location - start_location, line_number, col_number);
+        return create_token(TOKEN_INT_LITERAL, start_location, tokenizer->location - start_location, line_number, col_number);
     }
 
     while (is_digit(tokenizer->content[tokenizer->location]))
@@ -191,8 +189,7 @@ static Token scan_number(Tokenizer* tokenizer, const uint start_location, const 
         }
     }
 
-    return create_token(tokenizer,
-                        is_float ? TOKEN_FLOAT_LITERAL : TOKEN_INT_LITERAL,
+    return create_token(is_float ? TOKEN_FLOAT_LITERAL : TOKEN_INT_LITERAL,
                         start_location,
                         tokenizer->location - start_location,
                         line_number,
@@ -229,7 +226,7 @@ static Token scan_string(Tokenizer* tokenizer, const uint start_location, const 
         advance(tokenizer);
     }
 
-    return create_token(tokenizer, TOKEN_STRING_LITERAL, start_location, tokenizer->location - start_location, line_number, col_number);
+    return create_token(TOKEN_STRING_LITERAL, start_location, tokenizer->location - start_location, line_number, col_number);
 }
 
 // Scan a character literal token, including the surrounding quotes.
@@ -256,7 +253,7 @@ static Token scan_char(Tokenizer* tokenizer, const uint start_location, const ui
         advance(tokenizer); // closing quote
     }
 
-    return create_token(tokenizer, TOKEN_CHAR_LITERAL, start_location, tokenizer->location - start_location, line_number, col_number);
+    return create_token(TOKEN_CHAR_LITERAL, start_location, tokenizer->location - start_location, line_number, col_number);
 }
 
 // Advance the tokenizer for a punctuation or operator token of a fixed length.
@@ -271,7 +268,7 @@ static Token make_punctuation_token(Tokenizer* tokenizer,
     {
         advance(tokenizer);
     }
-    return create_token(tokenizer, type, start_location, length, line_number, col_number);
+    return create_token(type, start_location, length, line_number, col_number);
 }
 
 // Scan a punctuation or operator token.
@@ -405,7 +402,7 @@ Token get_next_token(Tokenizer* tokenizer)
 
     if (next_char == '\0')
     {
-        return create_token(tokenizer, TOKEN_EOF, tokenizer->location, 0, tokenizer->line_number, tokenizer->col_number);
+        return create_token(TOKEN_EOF, tokenizer->location, 0, tokenizer->line_number, tokenizer->col_number);
     }
 
     const uint start_location = tokenizer->location;

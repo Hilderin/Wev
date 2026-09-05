@@ -7,6 +7,8 @@ enable_testing()
 
 # Core library shared between the executable and the tests.
 add_library(wev_core STATIC
+        src/ast/ast.c
+        src/ast/ast.h
         src/core/string.c
         src/core/string_builder.c
         src/core/file.c
@@ -34,6 +36,7 @@ function(wev_add_unit_test target_name path)
 endfunction()
 
 wev_add_unit_test(test_string core/test_string)
+wev_add_unit_test(test_ast ast/test_ast)
 wev_add_unit_test(test_file core/test_file)
 wev_add_unit_test(test_string_builder core/test_string_builder)
 wev_add_unit_test(test_console driver/test_console)
