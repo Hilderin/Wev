@@ -65,6 +65,13 @@ uint32_t ast_push_include(Ast* ast, const uint32_t token_index, const bool is_sy
     return node_index;
 }
 
+uint32_t ast_push_import(Ast* ast, const uint32_t token_index, const uint32_t symbol_id)
+{
+    const uint32_t node_index = ast_push_node(ast, AST_IMPORT, token_index);
+    ast->nodes[node_index].payload.symbol_id = symbol_id;
+    return node_index;
+}
+
 uint32_t ast_push_fn_decl(Ast* ast, const uint32_t token_index, const bool consuming)
 {
     const uint32_t node_index = ast_push_node(ast, AST_FN_DECL, token_index);

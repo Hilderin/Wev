@@ -124,6 +124,31 @@ TEST(test_ast_push_include)
     ast_free(&ast);
 }
 
+TEST(test_ast_push_import)
+{
+    Ast ast;
+    ast_init(&ast, "");
+
+    const uint32_t plain = ast_push_import(&ast, 0, 100);
+
+    assert_node(&ast, plain, AST_IMPORT, 0);
+    ASSERT_EQ(ast.nodes[plain].payload.symbol_id, 100);
+    ASSERT_EQ(ast.nodes[plain].child_count, 0);
+
+    const uint32_t start = ast_begin_children(&ast);
+    ast_push_ident(&ast, 4, 300);
+    const uint32_t aliased = ast_push_import(&ast, 2, 200);
+    ast_end_children(&ast, aliased, start);
+
+    assert_node(&ast, aliased, AST_IMPORT, 2);
+    ASSERT_EQ(ast.nodes[aliased].payload.symbol_id, 200);
+    ASSERT_EQ(ast.nodes[aliased].child_count, 1);
+    ASSERT_EQ(ast.nodes[ast.nodes[aliased].first_child].kind, AST_IDENT);
+    ASSERT_EQ(ast.nodes[ast.nodes[aliased].first_child].payload.symbol_id, 300);
+
+    ast_free(&ast);
+}
+
 TEST(test_ast_push_fn_decl)
 {
     Ast ast;

@@ -14,6 +14,7 @@ typedef enum AstNodeKind
     // Declarations
     AST_MODULE,
     AST_INCLUDE,
+    AST_IMPORT,
     AST_FN_DECL,
     AST_STRUCT_DECL,
     AST_ENUM_DECL,
@@ -110,6 +111,7 @@ void ast_end_children(Ast* ast, uint32_t node_index, uint32_t start);
 // Declaration nodes.
 uint32_t ast_push_module(Ast* ast, uint32_t token_index);
 uint32_t ast_push_include(Ast* ast, uint32_t token_index, bool is_system);
+uint32_t ast_push_import(Ast* ast, uint32_t token_index, uint32_t symbol_id);
 uint32_t ast_push_fn_decl(Ast* ast, uint32_t token_index, bool consuming);
 uint32_t ast_push_struct_decl(Ast* ast, uint32_t token_index);
 uint32_t ast_push_enum_decl(Ast* ast, uint32_t token_index);

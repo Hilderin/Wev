@@ -411,6 +411,32 @@ TEST(test_tokenizer_acceptance_example)
     ASSERT_EQ(sequence.tokens[93].length, 1);
 }
 
+TEST(test_tokenizer_import)
+{
+    const TokenSequence sequence = tokenize_all("import utils.io as m\nimport math\n");
+
+    const TokenType expected[] = {
+        TOKEN_IMPORT,
+        TOKEN_IDENTIFIER,
+        TOKEN_DOT,
+        TOKEN_IDENTIFIER,
+        TOKEN_AS,
+        TOKEN_IDENTIFIER,
+        TOKEN_IMPORT,
+        TOKEN_IDENTIFIER,
+        TOKEN_EOF,
+    };
+
+    assert_token_types(&sequence, expected, sizeof(expected) / sizeof(expected[0]));
+
+    ASSERT_EQ(sequence.tokens[1].length, 5);
+    ASSERT_TRUE(memcmp(sequence.content + sequence.tokens[1].location, "utils", 5) == 0);
+    ASSERT_EQ(sequence.tokens[3].length, 2);
+    ASSERT_TRUE(memcmp(sequence.content + sequence.tokens[3].location, "io", 2) == 0);
+    ASSERT_EQ(sequence.tokens[5].length, 1);
+    ASSERT_TRUE(memcmp(sequence.content + sequence.tokens[5].location, "m", 1) == 0);
+}
+
 TEST(test_tokenizer_tab_indentation)
 {
     const TokenSequence sequence = tokenize_all("fn main() {\n\tx := 42\n\tif x > 0 {\n\t\tx += 1\n\t}\n}\n");

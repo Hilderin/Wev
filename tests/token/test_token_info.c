@@ -46,6 +46,10 @@ TEST(test_get_token_info_keywords)
     ASSERT_TRUE(get_token_info("unsafe", 6)->type == TOKEN_UNSAFE);
     ASSERT_TRUE(get_token_info("include", 7) != NULL);
     ASSERT_TRUE(get_token_info("include", 7)->type == TOKEN_INCLUDE);
+    ASSERT_TRUE(get_token_info("import", 6) != NULL);
+    ASSERT_TRUE(get_token_info("import", 6)->type == TOKEN_IMPORT);
+    ASSERT_TRUE(get_token_info("as", 2) != NULL);
+    ASSERT_TRUE(get_token_info("as", 2)->type == TOKEN_AS);
 }
 
 TEST(test_get_token_info_primitive_types)

@@ -912,10 +912,20 @@ void Wev_User_drop(Wev_User *value);
 The exact generated representation is an implementation detail as long as the
 ownership behavior is preserved.
 
-## 21. Modules and Packages
+## 21. Modules, Collections, and Packages
 
-A module is a directory of `.wev` files. It provides a compilation unit
-(Section 22), a namespace, and a visibility boundary.
+Three related but distinct concepts:
+
+- A **module** is a directory of `.wev` files. It provides a compilation unit
+  (Section 22), a namespace, and a visibility boundary. This is the only unit
+  named in source code: Wev code imports modules, never anything else.
+- A **collection** is a bindable root directory, named at build time with
+  `-collection:name=path` (Section 21.4). It is how the build resolves imports
+  to modules on disk; source code never names a collection except as the first
+  segment of an import path.
+- A **package** is a distributable unit: a collection plus its metadata. It is
+  a future concept (the manifest in Section 21.9) and never appears in source
+  code. No import in Wev source refers to a package.
 
 ### 21.1 Directory = module
 
@@ -927,14 +937,24 @@ A module is a directory of `.wev` files. It provides a compilation unit
 
 ### 21.2 Import syntax
 
+An import is a dot-separated module path, without quotes:
+
 ```text
-import "math"
-import "utils/io"
-import "foo/math" as m
+import math
+import utils.io
+import foo.math as m
 ```
 
+- `math` names the module in the subdirectory `math` of the home collection
+  root; `utils.io` names the module in `<root>/utils/io`.
+- A path whose first segment matches a declared collection name resolves
+  against that collection's directory instead (Section 21.4).
 - The namespace bound in the importing file is the last path segment, or the
   alias when one is given.
+- Because a path is a sequence of identifiers, every directory that is (or
+  contains) a module must have a name that is a valid Wev identifier. There
+  are no relative (`./`, `../`) imports; Section 21.5 explains how relocation
+  works instead.
 - Within the same directory, no import is needed.
 
 ### 21.3 Visibility
@@ -961,20 +981,28 @@ Imports are resolved against the importing module's home collection:
   repo resolves its own internal imports against its own collection root.
 - An import whose first segment matches a declared collection name resolves
   against that collection's directory; any other import resolves against the
-  importing module's home collection root.
+  importing module's home collection root. So `foo.math` means "the `math`
+  module inside the collection named `foo`", while `utils.io` means "the
+  `utils/io` module inside my home collection root".
 
-### 21.5 Relative imports
+### 21.5 Module identity
 
-- An import starting with `./` or `../` resolves relative to the importing
-  module's directory, without restriction.
+There are no relative imports; every module is addressed from a collection
+root by a path of identifiers. A module reached through a declared collection
+and the same directory reached as the project root are therefore different
+imports, but their identity is canonical:
+
 - Module identity is canonical (realpath): the same directory reached through
   different paths is one module in the dependency graph and cache.
-- Relative paths do not make a module relocatable; relocatability is provided
-  by collections.
+- Relocatability is provided by collections: to move a dependency elsewhere on
+  disk, change the `-collection:name=path` binding at build time, never the
+  source code. A cloned repo resolves its own internal imports against its own
+  collection root.
 
 ### 21.6 Rules and errors
 
 - Importing a nonexistent module is an error.
+- An import path segment that is not a valid Wev identifier is a parse error.
 - The import graph must be acyclic; circular imports are rejected.
 - Two imports in the same file binding the same namespace are rejected.
 - If a directory in the project root shares a name with a declared

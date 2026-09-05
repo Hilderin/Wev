@@ -138,6 +138,7 @@ construction `^User { ... }` is an `AST_HEAP_TYPE` wrapping an
 | --- | --- | --- | --- | --- |
 | `AST_MODULE` | declarations top-level | — | first token | done |
 | `AST_INCLUDE` | — | `is_system` | header name | done |
+| `AST_IMPORT` | alias? (`AST_IDENT`) | `symbol_id` (interned module path) | `import` | done |
 | `AST_FN_DECL` | parameters…, return type? | `consuming` | function name | done |
 | `AST_STRUCT_DECL` | fields… | — | struct name | done |
 | `AST_ENUM_DECL` | variants… | — | enum name | done |

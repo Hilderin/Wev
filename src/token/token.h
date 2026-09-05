@@ -25,6 +25,8 @@ typedef enum TokenType
     TOKEN_CONST,
     TOKEN_UNSAFE,
     TOKEN_INCLUDE,
+    TOKEN_IMPORT,
+    TOKEN_AS,
 
     // Primitive types
     TOKEN_BOOL,

@@ -31,6 +31,8 @@ static const TokenInfo token_infos[] = {
     [TOKEN_CONST] = TOKEN_ENTRY(TOKEN_CONST, "const", "const"),
     [TOKEN_UNSAFE] = TOKEN_ENTRY(TOKEN_UNSAFE, "unsafe", "unsafe"),
     [TOKEN_INCLUDE] = TOKEN_ENTRY(TOKEN_INCLUDE, "include", "include"),
+    [TOKEN_IMPORT] = TOKEN_ENTRY(TOKEN_IMPORT, "import", "import"),
+    [TOKEN_AS] = TOKEN_ENTRY(TOKEN_AS, "as", "as"),
 
     // Primitive types
     [TOKEN_BOOL] = TOKEN_ENTRY(TOKEN_BOOL, "bool", "bool"),
