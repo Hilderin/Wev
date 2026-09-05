@@ -37,29 +37,29 @@ Non-goals for MVP1:
 
 ## 2. Design Philosophy
 
-Ownership is the normal rule for every value. `*` only indicates that an owned
+Ownership is the normal rule for every value. `^` only indicates that an owned
 value lives on the heap. `&` indicates that a value is not owned.
 
 The core type model is:
 
 ```text
 T           // owned inline value
-*T          // owned heap value
+^T          // owned heap value
 
 &T          // readonly borrow
 &mut T      // mutable borrow
 
-raw *T      // unmanaged / raw pointer
+*T          // raw / unmanaged pointer
 ```
 
 Construction is symmetric:
 
 ```text
 user := User { ... }     // User
-user := *User { ... }    // *User
+user := ^User { ... }    // ^User
 ```
 
-Wev uses values by default. Heap allocation is explicit with `*T`, but its
+Wev uses values by default. Heap allocation is explicit with `^T`, but its
 cleanup is automatic.
 
 The language protects the most important ownership invariants:
@@ -226,7 +226,7 @@ A struct can contain:
 - primitive values;
 - other structs;
 - enums;
-- owned heap values (`*T`);
+- owned heap values (`^T`);
 - collections;
 - non-owning references, subject to lifetime checks;
 - raw pointers only in `unsafe` code.
@@ -322,13 +322,13 @@ user := User {
 
 ```text
 User     = owned value
-*User    = owned heap value
+^User    = owned heap value
 ```
 
-Heap values are created with the `*T` type directly, without any `make`:
+Heap values are created with the `^T` type directly, without any `make`:
 
 ```text
-user := *User {
+user := ^User {
     name: "Alice"
     age: 30
 }
@@ -338,10 +338,10 @@ Construction is symmetric:
 
 ```text
 User { ... }       // User inline
-*User { ... }      // *User heap-owned
+^User { ... }      // ^User heap-owned
 ```
 
-A `*T` is an owned pointer to a `T` on the heap. It is automatically freed when
+A `^T` is an owned pointer to a `T` on the heap. It is automatically freed when
 its ownership ends; safe code needs no matching `free`. There is no `Box<T>`
 type and no `make` keyword.
 
@@ -350,22 +350,22 @@ If ownership is transferred, cleanup responsibility follows the value.
 Example:
 
 ```text
-fn create_user() -> *User {
-    return *User {
+fn create_user() -> ^User {
+    return ^User {
         name: "Alice"
         age: 30
     }
 }
 ```
 
-The allocation created by `*User { ... }` is not destroyed before the returned
+The allocation created by `^User { ... }` is not destroyed before the returned
 value is received by the caller.
 
-A `*T` auto-dereferences. The heap is a storage choice, not a permanent
+A `^T` auto-dereferences. The heap is a storage choice, not a permanent
 syntactic penalty:
 
 ```text
-user: *User
+user: ^User
 
 user.name        // not (*user).name
 user.age = 31
@@ -458,13 +458,13 @@ This is valid with respect to lifetime, but the programmer is responsible for
 the resulting aliasing behavior and for concurrency.
 
 A `&T` is independent of the memory location of its target. It can reference an
-inline value, a heap-owned `*T`, or an element inside a collection:
+inline value, a heap-owned `^T`, or an element inside a collection:
 
 ```text
 user := User {}       // inline
 ref := &user
 
-user := *User {}      // heap-owned
+user := ^User {}      // heap-owned
 ref := &user
 
 ref := &users[0]      // element of a collection
@@ -530,14 +530,14 @@ would only duplicate this concept.
 Owned pointers add a useful distinction: modifying the object behind an owner
 versus modifying the owner itself.
 
-### Modifying the object behind a `*User`
+### Modifying the object behind a `^User`
 
 ```text
 fn birthday(user: &mut User) {
     user.age += 1
 }
 
-user := *User {
+user := ^User {
     name: "Alice"
     age: 30
 }
@@ -545,12 +545,12 @@ user := *User {
 birthday(&mut user)
 ```
 
-With auto-deref from `*User` to `&mut User`, the function can modify the
+With auto-deref from `^User` to `&mut User`, the function can modify the
 `User`, but it cannot change which `User` is owned by `user`:
 
 ```text
 caller
-user: *User ───────────► User
+user: ^User ───────────► User
                           age = 30
                             ↑
                             │
@@ -559,17 +559,17 @@ user: *User ───────────► User
 
 ### Modifying the owner itself
 
-Passing a mutable reference to the `*User` allows reassigning the owner:
+Passing a mutable reference to the `^User` allows reassigning the owner:
 
 ```text
-fn replace_user(user: &mut *User) {
-    user = *User {
+fn replace_user(user: &mut ^User) {
+    user = ^User {
         name: "Bob"
         age: 25
     }
 }
 
-user := *User {
+user := ^User {
     name: "Alice"
     age: 30
 }
@@ -580,15 +580,15 @@ replace_user(&mut user)
 ```
 
 ```text
-*User       owned heap User
-&mut *User  mutable reference to the owner
+^User       owned heap User
+&mut ^User  mutable reference to the owner
 ```
 
 This is effectively what a `byref` parameter would provide.
 
 ### The old value is destroyed automatically
 
-When `user = *User { name: "Bob" }` replaces the value, the previous `Alice`
+When `user = ^User { name: "Bob" }` replaces the value, the previous `Alice`
 is destroyed automatically:
 
 ```text
@@ -611,7 +611,7 @@ The rule is identical for primitives, structs, lists, and heap owners:
 ```text
 fn set_int(x: &mut int)
 fn set_user(x: &mut User)
-fn set_heap_user(x: &mut *User)
+fn set_heap_user(x: &mut ^User)
 fn set_list(x: &mut List<User>)
 ```
 
@@ -629,10 +629,10 @@ fn foo(x: User)          // User value
 fn foo(x: &User)         // observe a User
 fn foo(x: &mut User)     // modify a User
 
-fn foo(x: *User)         // heap owner (passing semantics to be defined)
-fn foo(x: &User)         // observe the User behind a *User
-fn foo(x: &mut User)     // modify the User behind a *User
-fn foo(x: &mut *User)    // modify the owner/pointer itself
+fn foo(x: ^User)         // heap owner (passing semantics to be defined)
+fn foo(x: &User)         // observe the User behind a ^User
+fn foo(x: &mut User)     // modify the User behind a ^User
+fn foo(x: &mut ^User)    // modify the owner/pointer itself
 ```
 
 ## 13. Enums and Results
@@ -694,17 +694,17 @@ Collections have three distinct semantics:
 
 ```text
 List<User>     // owns inline Users in its storage
-List<*User>    // owns Users individually allocated on the heap
+List<^User>    // owns Users individually allocated on the heap
 List<&User>    // does not own Users; stores only borrows
 ```
 
-`List<*User>` is used when real indirection is wanted. Its buffer holds
+`List<^User>` is used when real indirection is wanted. Its buffer holds
 owners/pointers, and each `User` keeps a stable address on the heap:
 
 ```text
-users := List<*User>()
+users := List<^User>()
 
-users.push(*User {
+users.push(^User {
     name: "Alice"
     age: 30
 })
@@ -847,7 +847,7 @@ C declarations are written explicitly:
 
 ```text
 extern "c" {
-    fn printf(format: raw *const c_char, ...) -> i32
+    fn printf(format: *const c_char, ...) -> i32
 }
 ```
 
@@ -1181,7 +1181,7 @@ The following are deliberately postponed:
 - dynamic trait objects;
 - advanced generic specialization;
 - incremental build and module caching (see Section 22);
-- optimizer-driven heap-to-stack promotion of `*T` allocations.
+- optimizer-driven heap-to-stack promotion of `^T` allocations.
 
 ## 26. Open Decisions
 
@@ -1202,3 +1202,6 @@ stable:
    designed in Section 21. Incremental builds and module caching remain
    postponed (Section 22).
 10. Is `Wev` the final public name after availability and trademark checks?
+11. Resolved: `^T` is the owned-heap-value glyph (Section 2) and `*T` the raw /
+    unmanaged pointer. `^` is therefore reserved; a future bitwise XOR operator
+    will not reuse this glyph.

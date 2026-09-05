@@ -127,11 +127,11 @@ builders.
 
 The payload stays a single 8-byte union; `symbol_id` values point into the
 interned-symbol arena (1.5). Boolean modifiers (`is_system`, `consuming`,
-`is_trait_impl`, `has_explicit_type`, `is_raw`, `is_mut`) are packed into a
+`is_trait_impl`, `has_explicit_type`, `is_mut`) are packed into a
 single `flags` field with `AST_FLAG_*` masks; operators (`AST_ASSIGN`,
 `AST_BINARY_OP`, `AST_UNARY_OP`) store a `TokenType` in `op`. `AST_VAR_DECL`
 is reused for function parameters, struct fields, and enum variants. A heap
-construction `*User { ... }` is an `AST_PTR_TYPE` wrapping an
+construction `^User { ... }` is an `AST_HEAP_TYPE` wrapping an
 `AST_STRUCT_LITERAL`.
 
 | Kind | Children | Payload | Token | Status |
@@ -146,7 +146,8 @@ construction `*User { ... }` is an `AST_PTR_TYPE` wrapping an
 | `AST_CONST_DECL` | type?, initializer | — | const name | done |
 | `AST_EXTERN_BLOCK` | extern declarations… | — | `extern` | done |
 | `AST_TYPE` | generic args… | `symbol_id` | type name | done |
-| `AST_PTR_TYPE` | pointee type | `is_raw` | `*` | done |
+| `AST_HEAP_TYPE` | pointee type | — | `^` | done |
+| `AST_PTR_TYPE` | pointee type | — | `*` | done |
 | `AST_REF_TYPE` | referent type | `is_mut` | `&` | done |
 | `AST_GENERIC_ARGS` | types… | — | `<` | done |
 | `AST_BLOCK` | statements… | — | `{` | done |

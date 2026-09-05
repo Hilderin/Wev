@@ -361,6 +361,8 @@ static Token scan_punctuation(Tokenizer* tokenizer, const uint start_location, c
                                       col_number);
     case '~':
         return make_punctuation_token(tokenizer, TOKEN_TILDE, start_location, 1, line_number, col_number);
+    case '^':
+        return make_punctuation_token(tokenizer, TOKEN_CARET, start_location, 1, line_number, col_number);
     case '!':
         return make_punctuation_token(tokenizer,
                                       lookahead == '=' ? TOKEN_NE : TOKEN_NOT,

@@ -224,12 +224,12 @@ TEST(test_tokenizer_get_next_token_operators)
 
 TEST(test_tokenizer_get_next_token_single_operators)
 {
-    Tokenizer tokenizer = tokenizer_new("{ } ( ) [ ] , ; : . + - * / % & | ! ~ < >");
+    Tokenizer tokenizer = tokenizer_new("{ } ( ) [ ] , ; : . + - * / % & | ! ~ ^ < >");
 
     const TokenType expected[] = {
         TOKEN_LBRACE, TOKEN_RBRACE, TOKEN_LPAREN, TOKEN_RPAREN, TOKEN_LBRACKET, TOKEN_RBRACKET, TOKEN_COMMA,   TOKEN_SEMICOLON,
         TOKEN_COLON,  TOKEN_DOT,    TOKEN_PLUS,   TOKEN_MINUS,  TOKEN_STAR,     TOKEN_SLASH,    TOKEN_PERCENT, TOKEN_AMP,
-        TOKEN_PIPE,   TOKEN_NOT,    TOKEN_TILDE,  TOKEN_LT,     TOKEN_GT,       TOKEN_EOF,
+        TOKEN_PIPE,   TOKEN_NOT,    TOKEN_TILDE,  TOKEN_CARET,  TOKEN_LT,       TOKEN_GT,       TOKEN_EOF,
     };
 
     for (uint i = 0; i < sizeof(expected) / sizeof(expected[0]); i++)
@@ -264,6 +264,19 @@ TEST(test_tokenizer_get_next_token_reference_type)
     ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_RPAREN);
     ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_ARROW);
     ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_AMP);
+    ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_IDENTIFIER);
+}
+
+TEST(test_tokenizer_get_next_token_heap_type)
+{
+    Tokenizer tokenizer = tokenizer_new("fn create() -> ^User");
+
+    ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_FUNCTION);
+    ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_IDENTIFIER);
+    ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_LPAREN);
+    ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_RPAREN);
+    ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_ARROW);
+    ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_CARET);
     ASSERT_EQ(get_next_token(&tokenizer).type, TOKEN_IDENTIFIER);
 }
 

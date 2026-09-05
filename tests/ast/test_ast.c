@@ -234,13 +234,21 @@ TEST(test_ast_push_ptr_type)
     Ast ast;
     ast_init(&ast, "");
 
-    const uint32_t raw = ast_push_ptr_type(&ast, 0, true);
-    const uint32_t owned = ast_push_ptr_type(&ast, 1, false);
+    const uint32_t node_index = ast_push_ptr_type(&ast, 0);
 
-    assert_node(&ast, raw, AST_PTR_TYPE, 0);
-    assert_node(&ast, owned, AST_PTR_TYPE, 1);
-    ASSERT_EQ(ast.nodes[raw].payload.flags & AST_FLAG_IS_RAW, AST_FLAG_IS_RAW);
-    ASSERT_EQ(ast.nodes[owned].payload.flags & AST_FLAG_IS_RAW, 0);
+    assert_node(&ast, node_index, AST_PTR_TYPE, 0);
+
+    ast_free(&ast);
+}
+
+TEST(test_ast_push_heap_type)
+{
+    Ast ast;
+    ast_init(&ast, "");
+
+    const uint32_t node_index = ast_push_heap_type(&ast, 0);
+
+    assert_node(&ast, node_index, AST_HEAP_TYPE, 0);
 
     ast_free(&ast);
 }

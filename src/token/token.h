@@ -79,6 +79,7 @@ typedef enum TokenType
     TOKEN_AMP,
     TOKEN_PIPE,
     TOKEN_TILDE,
+    TOKEN_CARET,
     TOKEN_AND,
     TOKEN_OR,
     TOKEN_NOT,

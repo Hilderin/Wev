@@ -117,14 +117,14 @@ uint32_t ast_push_type(Ast* ast, const uint32_t token_index, const uint32_t symb
     return node_index;
 }
 
-uint32_t ast_push_ptr_type(Ast* ast, const uint32_t token_index, const bool is_raw)
+uint32_t ast_push_heap_type(Ast* ast, const uint32_t token_index)
 {
-    const uint32_t node_index = ast_push_node(ast, AST_PTR_TYPE, token_index);
-    if (is_raw)
-    {
-        ast->nodes[node_index].payload.flags |= AST_FLAG_IS_RAW;
-    }
-    return node_index;
+    return ast_push_node(ast, AST_HEAP_TYPE, token_index);
+}
+
+uint32_t ast_push_ptr_type(Ast* ast, const uint32_t token_index)
+{
+    return ast_push_node(ast, AST_PTR_TYPE, token_index);
 }
 
 uint32_t ast_push_ref_type(Ast* ast, const uint32_t token_index, const bool is_mut)

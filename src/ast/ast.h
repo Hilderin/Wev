@@ -24,6 +24,7 @@ typedef enum AstNodeKind
 
     // Types
     AST_TYPE,
+    AST_HEAP_TYPE,
     AST_PTR_TYPE,
     AST_REF_TYPE,
     AST_GENERIC_ARGS,
@@ -86,8 +87,7 @@ typedef struct Ast
 #define AST_FLAG_CONSUMING (1u << 1)         // AST_FN_DECL
 #define AST_FLAG_IS_TRAIT_IMPL (1u << 2)     // AST_IMPL
 #define AST_FLAG_HAS_EXPLICIT_TYPE (1u << 3) // AST_VAR_DECL
-#define AST_FLAG_IS_RAW (1u << 4)            // AST_PTR_TYPE
-#define AST_FLAG_IS_MUT (1u << 5)            // AST_REF_TYPE
+#define AST_FLAG_IS_MUT (1u << 4)            // AST_REF_TYPE
 
 // Initializes an empty AST over the given source.
 void ast_init(Ast* ast, const char* source);
@@ -120,7 +120,8 @@ uint32_t ast_push_extern_block(Ast* ast, uint32_t token_index);
 
 // Type nodes.
 uint32_t ast_push_type(Ast* ast, uint32_t token_index, uint32_t symbol_id);
-uint32_t ast_push_ptr_type(Ast* ast, uint32_t token_index, bool is_raw);
+uint32_t ast_push_heap_type(Ast* ast, uint32_t token_index);
+uint32_t ast_push_ptr_type(Ast* ast, uint32_t token_index);
 uint32_t ast_push_ref_type(Ast* ast, uint32_t token_index, bool is_mut);
 uint32_t ast_push_generic_args(Ast* ast, uint32_t token_index);
 
